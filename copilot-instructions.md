@@ -1,113 +1,153 @@
-# Repository-wide Copilot Instructions
+# Shared Copilot Instructions
 
 ## What this file is for
 
-This file is the repo-wide base instruction layer.
+This file is the cross-project base instruction layer.
 
 Use it for:
-
-- repository context
-- architecture understanding
-- global reasoning and writing expectations
+- broad engineering principles
+- naming and API design principles
+- explanation and documentation style
 - safety and correctness defaults
+- reusable testing and benchmarking expectations
+- long-lived code quality preferences
 
-More specific instructions live under `.github/instructions/` and apply by file pattern or task type.
-When a more specific instruction file applies, follow that file for the scoped task and use this file as the fallback base.
+More specific instruction files may narrow or extend these defaults for a language, file pattern, project, or task type.
+When a more specific file applies, follow that file for the local task and use this file as the fallback base.
 
-Do not duplicate specialized commit, changelog, or file-pattern-specific rules here unless they are truly repo-wide.
 
-## What this project is
 
-This repo is a mixed scraping and data-loading workspace, not a single library.
+## Core engineering stance
 
-- `pipelines/` is the intended home for new pipeline and orchestration work going forward. It is currently empty, which means new architecture work should start there instead of extending older paths by default.
-- `py/` contains an older Hamilton-based MediaWiki pipeline. Use it as reference material unless a task explicitly asks you to maintain, migrate, or extract behavior from it.
-- `py/profiles/` shows wiki-specific interpretation patterns from the older pipeline and is useful as reference when designing new classification or profile layers.
-- `mediawiki/` contains standalone exporter scripts with their own state and resume logic. Treat them as legacy source-specific reference implementations.
-- `scrapy/` contains an older Scrapy project with one custom spider. Treat it as legacy reference for crawling patterns, not the default destination for new crawler code.
-- `upload_*.ts` and `_arango_script_utils.ts` are standalone Deno scripts for loading JSONL into ArangoDB.
+Write code in a principles-first, JavaScript-native style when working in JavaScript or TypeScript.
+Prefer runtime shapes that stay plain, explicit, and easy to inspect.
+Use TypeScript to describe and sharpen JavaScript, not to bury the runtime model under extra ceremony.
 
-Do not describe the current codebase as already Dagster-based. `dagster` packages exist in `py/requirements.txt`, but the checked-in implementation does not yet expose Dagster `Definitions`, assets, jobs, schedules, or sensors. The direction of travel is toward Dagster and Scrapy in `pipelines/`, not more Hamilton code in `py/`.
+Prefer the smallest correct design that keeps the code understandable.
+Optimize for clarity, correctness, boundary honesty, maintainability, and standards alignment.
+Use lower-level or performance-oriented techniques when they genuinely fit the workload, but explain the tradeoff clearly when they make the code less direct.
 
-There is no active root `pipeline/` directory in the workspace today. Use `pipelines/` for new work unless the task explicitly targets a legacy path.
+Do not invent files, APIs, config, behavior, or guarantees that are not visible in the task context.
+If something is unclear, state the assumption and give a concrete verification step.
 
-## Working defaults
+## Naming and runtime shape principles
 
-- Preserve snake_case JSON and record shapes unless a task explicitly requires a schema change.
-- Put new pipeline, orchestration, and crawler architecture in `pipelines/`.
-- Treat `py/`, `mediawiki/`, `scrapy/`, and the upload scripts as legacy reference material unless a task explicitly asks for maintenance there.
-- When reusing logic from legacy code, port the behavior intentionally instead of copying the old structure wholesale.
-- Keep orchestration boundaries explicit. New orchestration should be Dagster-oriented in `pipelines/`; older Hamilton boundaries in `py/` are useful reference, not the default design target.
-- When changing legacy incremental or resume behavior, reason carefully about SQLite state, recentchanges overlap, append-only JSONL outputs, and Scrapy JOBDIR semantics.
-- For new crawler work, move toward Scrapy-backed ingestion under `pipelines/` rather than extending the legacy `scrapy/` project by default.
+Let the role of the code decide the naming.
+Do not force one naming rule onto every construct.
+
+Make data look like data, and make behavior look like behavior.
+
+The typescript instructions file has more specific naming conventions for different shapes of code. Follow those when working in TypeScript.
+
+The python instructions file has more specific naming conventions for different shapes of code. Follow those when working in Python.
+
+## Boundary honesty
+
+At boundaries, keep naming and contracts honest.
+Mirror the naming used by external APIs, libraries, file formats, protocols, or other systems while you are still at the boundary.
+Normalize into the project’s internal naming style only once the data crosses into the project’s own domain model.
+Do not blur boundary types and internal types together.
+
+Validate inputs explicitly at system boundaries.
+Call out trust boundaries around untrusted input, auth, permissions, parsing, network access, filesystem access, and persistence.
+
+## JavaScript and TypeScript defaults
+
+Prefer JavaScript-native constructs when JavaScript already expresses the intent clearly.
+Avoid TypeScript-only ceremony unless it adds real value.
+For example, avoid `public` by default, prefer `#private` when real private state is needed and supported, and use `protected` only when inheritance genuinely requires it.
+
+Prefer constant objects plus derived types over TypeScript `enum` when both can express the same idea clearly.
+Keep the runtime shape plain and make the type derive from the runtime source of truth.
+
+Prefer plain, cheap, inspectable lookup structures.
+For membership checks, default to object-based lookup tables when simple key existence is all that is needed.
+Use `Object.create(null)` for dictionary-style lookup tables when prototypes are unnecessary.
+Freeze static lookup tables when immutability helps communicate intent and prevent accidental drift.
+For simple dense numeric or byte-range checks, prefer `Uint8Array`.
+Still choose the structure that best matches the actual problem when semantics matter more than a minor optimization.
 
 ## Writing and explanation style
 
-- Use familiar language that a JavaScript or TypeScript developer with about 2 to 3 years of experience would likely understand on first read.
-- Do not assume parser, compiler, or formal language theory background unless the task clearly requires it.
-- Do not replace one abstract phrase with another abstract phrase and call it clarity.
-- Do not swap one hard word for another and call that plain English.
-- When explaining a hard idea, start with concrete technical behavior from this repo or task.
-- Ground explanations in at least one concrete anchor such as:
-  - a real code path
-  - a concrete input or output
-  - a token or marker sequence
-  - a bug or failure mode
-  - a performance or allocation cost
-  - a downstream effect for callers, maintainers, or consumers
+Use plain English by default.
+When a technical term is worth keeping, define the concrete behavior first, then introduce the term if it still helps.
+Do not replace one abstract phrase with another abstract phrase and call that clarity.
+Ground explanations in at least one concrete anchor such as:
+- a real code path
+- a concrete input or output
+- a marker, token, or delimiter
+- a bug or failure mode
+- a performance or allocation cost
+- a downstream effect for callers, maintainers, or operators
 
-- Explain what happens first, then why it matters here, then introduce the technical name only if it still helps.
-- If a technical term such as `lexical`, `invariant`, or `delimiter` is necessary, explain what it means in this codebase and why it matters here.
-- Use a real-world metaphor only when direct technical grounding still is not enough.
-- Keep metaphors brief and accurate.
-- After using a metaphor, return to the real technical behavior before moving on.
-- Diagrams must match real behavior in the implementation or spec. Do not simplify them into something that teaches the wrong thing.
-- Avoid em dashes in prose.
+Explain what happens first, then why it matters here, then introduce the technical name only if it still helps.
+If a technical term such as e.g. `lexical`, `invariant`, or `delimiter`, etc... is necessary, explain what it means in this codebase and why it matters here.
+Use a real-world metaphor only when direct technical grounding is still not enough.
+Keep metaphors brief and accurate.
+Return to the real technical behavior before moving on.
+
+Avoid em dashes in prose.
+
+## Comments, docs, and TSDoc
+
+Use docs, comments, and TSDoc to explain intent, constraints, assumptions, edge cases, invariants, tradeoffs, and behavior that are not easy to infer from a quick read.
+Good docs should make clear:
+- what problem is being solved
+- what is being done
+- why the approach matters
+- what it enables going forward
+
+Do not narrate obvious code.
+Do not restate syntax that the reader can already see.
+Comments should earn their keep by surfacing reasoning, hidden constraints, workload assumptions, tradeoffs, or behaviors that a reader would otherwise have to reverse-engineer.
+
+Focus especially on logic that is hard to grasp from the code alone, such as:
+- binary parsing, encoding, offsets, and low-level data handling
+- regular expressions and tricky matching behavior
+- complex array or object transformations
+- normalization and boundary conversion logic
+- external I/O such as filesystem, network, process, database, or IPC work
+- concurrency, scheduling, coordination, cancellation, and lifecycle management
+- caching, pooling, batching, and allocation-sensitive code
+- invariants, assumptions, failure modes, and edge cases
+- performance-sensitive code and deliberate optimizations
+
+Use ASCII diagrams when prose alone would make structure, flow, hierarchy, state transitions, binary layouts, or algorithm steps harder to understand.
+Always pair a diagram with prose that explains what the reader is looking at, why it matters, and how to read it.
+
+## Performance and optimization policy
+
+Treat non-trivial performance work as a design decision that must be explained.
+When code becomes less straightforward because of performance, memory, allocation, caching, batching, scheduling, I/O, or concurrency concerns, explain the tradeoff clearly.
+
+For non-obvious optimizations, document:
+- what the optimization is
+- how it works mechanically
+- what runtime cost it reduces
+- why that cost matters in this specific workload or code path
+- why the gain is worth the added readability or maintenance cost
+
+Explain performance decisions in terms of the real workload and access pattern in this codebase, not vague claims like `this is faster`.
+Do not introduce performance complexity silently.
+
+## Safety and correctness defaults
+
+Default to least privilege.
+Avoid unsafe patterns such as string-built SQL, unsafe eval, hidden trust assumptions, or weak crypto.
+Do not leak secrets or credentials in logs, examples, or test fixtures.
+Respect remote systems when changing crawlers, clients, or automation. Keep retries, delays, concurrency, rate limits, and similar behavior explicit and conservative unless the task requires otherwise.
+
+## Validation mindset
+
+Prefer real verification over ritual.
+Use the validation path that fits the local project and language.
+Do not claim a check was run if it was not run.
+If validation is missing, say what should be run and why.
 
 ## Default operating mode
 
-- Be explicit and high-signal.
-- Prefer the smallest correct change first.
-- Do not invent files, APIs, config, behavior, or guarantees that are not visible in the repo.
-- If something is unclear, state the assumption and give a concrete verification step.
-- Prefer established standards and conventions when they fit the problem.
-- Call out trade-offs when multiple valid approaches exist.
-- Optimize for maintainability, clarity, reproducibility, and educational value.
-- Verify diagrams, examples, and explanatory claims against the implementation before presenting them as fact.
-
-## Safety and correctness
-
-- Default to least privilege.
-- Avoid unsafe patterns such as string-built SQL, unsafe eval, weak crypto, or hidden trust assumptions.
-- Do not leak secrets or credentials in logs, examples, or test fixtures.
-- Call out trust boundaries around auth, permissions, parsing, and untrusted input.
-- Respect remote sites when changing crawlers or API clients. Keep delays, retries, and robots-related behavior explicit and conservative unless the task requires otherwise.
-
-## Python defaults
-
-- Prefer idiomatic Python: snake_case names, `pathlib.Path` for new path handling, and small functions with explicit inputs and outputs.
-- Add type hints where they clarify module boundaries, record shapes, or non-obvious return values. Do not add noisy annotations to every local variable.
-- In legacy Hamilton code, keep nodes deterministic and side-effect-light. Helpers that should stay out of the DAG should keep a leading underscore.
-- In new Dagster-oriented code under `pipelines/`, keep assets, resources, schedules, and sensors thin over plain Python logic.
-- Put wiki-specific or source-specific interpretation behind explicit profile or adapter boundaries rather than scattering it across shared modules.
-- For Scrapy spiders, always `yield` or `return` Requests, validate selectors with `scrapy shell` when extraction is uncertain, and use item pipelines only for real processing.
-
-## Validation
-
-- No automated test suite is currently visible in the repo, and `deno.jsonc` does not define any tasks.
-- For legacy Hamilton pipeline work, install `py/requirements.txt`, work from `py/`, and use `python run.py --test` as the documented end-to-end sanity check.
-- For legacy Scrapy work, install `scrapy/requirements.txt`, work from `scrapy/`, and prefer a small crawl slice such as `scrapy crawl tvtropes_tropes -a page_start=1 -a page_end=1 -O output/sample.jsonl` before broader runs.
-- For new code under `pipelines/`, document and prefer the validation path that ships with that new code instead of inheriting legacy commands by assumption.
-- For Deno upload scripts, run the script directly with `deno run ...`; do not assume repo-wide `deno task` helpers exist.
-
-## Instruction routing
-
-More specific instructions live under `.github/instructions/` and apply by file pattern or task type. Follow those files when they apply.
-
-Examples:
-
-- docs-writing instructions for docs, comments, and TSDoc work
-- pipelines instructions for new work under `pipelines/`
-- python instructions for `**/*.py`
-- commit-writing instructions for commit messages
-- changelog-writing instructions for changelog entries and release notes
+Be explicit and high-signal.
+Prefer the smallest correct change first.
+Call out tradeoffs when multiple valid approaches exist.
+Prefer code that teaches as it goes.
+The structure, naming, docs, comments, and examples should help a careful reader understand the problem, the solution, the reasoning behind it, and the downstream impact without having to guess.

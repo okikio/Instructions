@@ -1,5 +1,5 @@
 ---
-description: Test quality standards for this repo
+description: Cross-project test quality standards
 applyTo: "**/*_test.ts,**/*.test.ts"
 ---
 
@@ -7,12 +7,12 @@ applyTo: "**/*_test.ts,**/*.test.ts"
 
 ## Tools
 
-Use:
+Default to:
 - `jsr:@std/testing/bdd` for `describe` and `it`
 - `jsr:@std/expect` for assertions
 - `npm:fast-check` for property-based tests
 
-Imports should follow this pattern:
+Imports should usually follow this shape:
 
 ```ts
 import { describe, it } from 'jsr:@std/testing/bdd';
@@ -20,112 +20,63 @@ import { expect } from 'jsr:@std/expect';
 import * as fc from 'npm:fast-check';
 ```
 
-Run tests with:
-
-```bash
-deno task test
-```
+If a local project already uses a Jest-style `expect` surface through another compatible test runner such as Vitest, keep the same assertion style rather than fighting the local tool.
+Prefer consistency of test ergonomics when the underlying assertion model is effectively the same.
 
 ## Core principle
 
 Test behavior, not implementation.
-
-Treat each module as a black box. Call the public API and assert on observable results.
-
-Do not assert on private state, internal helpers, or incidental implementation details.
-
-For the parser, prefer testing through:
-
-* `parse()`
-* `events()`
-* `outlineEvents()`
-* `stringify()`
-* `tokens()`
+Treat each module as a black box.
+Call the public API and assert on observable results.
+Do not assert on private state, internal helpers, or incidental implementation details when public behavior is available.
 
 ## Determinism and independence
 
-* No shared mutable state between tests.
-* No ordering dependencies.
-* No wall-clock or environment dependence unless explicitly isolated.
-* One logical behavior per test.
+- No shared mutable state between tests.
+- No ordering dependencies.
+- No wall-clock or environment dependence unless explicitly isolated.
+- One logical behavior per test.
 
 If a test description needs the word `and`, it is probably two tests.
 
 ## Clarity over DRYness
 
 Tests are documentation.
-
 Prefer straightforward setup over clever helper layers that hide intent.
-
 Use the AAA pattern:
+- Arrange
+- Act
+- Assert
 
-* Arrange
-* Act
-* Assert
-
-Example:
-
-```ts
-const input = '== Heading ==';
-const tree = parse(input);
-
-expect(tree.children[0].type).toBe('heading');
-expect(tree.children[0].depth).toBe(2);
-```
-
-Human-written expected values are better than generated expected values that
-repeat the implementation logic.
+Human-written expected values are better than generated expected values that repeat the implementation logic.
 
 ## Property-based tests
 
 Use `fast-check` for invariants.
+High-value properties often include:
+- never-throw behavior where relevant
+- round-trip stability
+- content preservation where applicable
+- idempotence where applicable
+- structural well-formedness
+- oracle comparison where a trustworthy baseline exists
 
-High-value parser properties include:
+## Edge cases
 
-* never-throw
-* round-trip stability
-* event well-formedness
-* content preservation where applicable
-* idempotence where applicable
-* oracle comparison where a trustworthy baseline exists
-
-Example:
-
-```ts
-fc.assert(
-  fc.property(fc.string(), (s) => {
-    const tree = parse(s);
-    expect(tree.type).toBe('root');
-  }),
-);
-```
-
-## Edge cases to always cover
-
-* empty input
-* single-character input
-* single newline
-* pure `\r` line endings
-* mixed line endings
-* null bytes
-* astral Unicode characters
-* CJK and RTL text
-* unclosed markup
-* malformed tables
-* unusual apostrophe runs
-* nested templates and links
-* behavior switches
-* signatures
-* redirects
-* nowiki and pre regions
-* extremely long lines
-
-For repeated structures such as list items, rows, or arguments, test counts of 0, 1, and 2 to catch off-by-one errors.
+Always look for edge cases that match the local domain.
+Common examples include:
+- empty input
+- single-item input
+- boundary counts such as 0, 1, and 2
+- mixed line endings when text processing matters
+- malformed or partial input
+- Unicode edge cases when text handling matters
+- extremely long inputs or repeated structures
 
 ## Anti-patterns
 
-* Do not assert giant multi-line strings when a structural assertion is more robust.
-* Do not run a code path without asserting anything meaningful about the result.
-* Do not over-abstract test helpers.
-* Do not rely on timing assertions in normal unit tests.
-* Do not test internals when public behavior is available.
+- Do not assert giant multi-line strings when a structural assertion is more robust.
+- Do not run a code path without asserting anything meaningful.
+- Do not over-abstract test helpers.
+- Do not rely on timing assertions in normal unit tests.
+- Do not test internals when public behavior is available.
