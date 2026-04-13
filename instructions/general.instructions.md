@@ -8,7 +8,7 @@ Let the role of the code decide its shape. Do not blindly force one naming rule 
 
 Make data look like data, and make behavior look like behavior.
 
-Use `snake_case` for plain records, normalized payloads, persistence-oriented fields, schema-like data, and other shapes that are primarily stable data.
+Use `snake_case` for fields in plain records, normalized payloads, persistence-oriented fields, schema-like data, and other shapes that are primarily stable data.
 
 Use `camelCase` for functions, methods, variables, parameters, getters, setters, class properties, and other runtime behavior. Classes are runtime objects, not plain records, so their properties and methods should read like normal JavaScript.
 
