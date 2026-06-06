@@ -1,6 +1,6 @@
 # Base Engineering Instructions
 
-Use a principles-first style. The goal is not just to make the code work, but to make it feel deliberate, explainable, maintainable, and easy to trust.
+Use a principles-first style. The goal is not just to make the code work, but to make it feel obvious, predictable, explainable, easy to self-serve, and easy to trust.
 
 Prefer JavaScript-native constructs and runtime shapes whenever JavaScript already expresses the idea clearly. Use TypeScript to describe and sharpen JavaScript, not to replace it with extra ceremony. Avoid TypeScript-only syntax when JavaScript already carries the intent well. For example, do not add `public` by default, prefer `#private` when real private state is needed and supported, and use `protected` only when inheritance genuinely requires it.
 
@@ -20,7 +20,7 @@ At boundaries, keep naming honest. Mirror the naming used by external APIs, libr
 
 Prefer the shortest name that still communicates the real intent. Do not make names longer just to sound explicit. Add more words only when they remove real ambiguity. Favor names that stay visually light and easy to scan.
 
-Treat files as part of the design. Use `snake_case` for normal internal files. Use a leading underscore, such as `_utils.ts`, for support modules, helper modules, or secondary driver files that are not the main entry point for understanding a feature. The underscore marks the file as secondary, not forbidden.
+Treat files as part of the design. Use a leading underscore, such as `_utils.ts`, for support modules, helper modules, or secondary driver files that are not the main entry point for understanding a feature. The underscore marks the file as secondary, not forbidden.
 
 Prefer JavaScript-native representations over TypeScript-only constructs when both can express the same idea clearly. For named finite value sets, prefer constant objects plus derived types over TypeScript `enum`. Keep the runtime shape plain and make the type derive from the runtime source of truth.
 
