@@ -17,6 +17,20 @@ When introducing a concept, prefer this narrative order:
 
 Use this as a default shape, not a rigid template.
 
+Before writing, choose the documents job:
+
+- Tutorial
+- How-to
+- Reference
+- Conceptual
+- Troubleshooting
+- Design note
+- Changelog
+- Review
+- Commit message
+
+A document should do one primary job. If it needs to teach, specify, and troubleshoot, split it or create clear sections with different reader paths.
+
 ## Writing style
 
 - Use plain English.
@@ -29,6 +43,9 @@ Use this as a default shape, not a rigid template.
 - Use present tense where practical.
 - Expand acronyms on first use.
 - Avoid em dashes.
+- Avoid `easy`, `simple`, and `quick` when describing reader actions, as this can create pressure on the reader.
+- Use direct address in task-oriented docs, and neutral, precise language in reference docs, changelogs, commits, and design notes.
+- Avoid burying important information in code example comments.
 
 The goal is not just to swap jargon for simpler jargon.
 The goal is to help the reader build a working mental model.
@@ -79,3 +96,5 @@ Keep decisions concrete. Make tradeoffs explicit. State assumptions plainly.
 - Do not create many tiny headers that simply label the next paragraph.
 - Do not replace one abstract phrase with another abstract phrase and call it clarity.
 - Do not use diagrams or examples that overstate certainty beyond what the implementation actually guarantees.
+- Do not use summary transitions that recap the previous paragraph without adding direction
+- Do not use generic setup lines that could fit any page

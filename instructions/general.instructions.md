@@ -28,7 +28,9 @@ Prefer plain, cheap, inspectable runtime structures. For membership checks, defa
 
 Optimize for clarity first, but allow deliberate complexity when it earns its keep. When code becomes less straightforward because of performance, memory, allocation, caching, batching, scheduling, I/O, concurrency, or other systems concerns, treat that as a design decision that must be explained. Do not introduce cleverness silently.
 
-Write documentation, comments, and TSDoc to explain intent, constraints, assumptions, tradeoffs, and behavior that are not easy to infer from a quick read.
+Write documentation, comments, and TSDoc to explain intent, constraints, assumptions, tradeoffs, and behavior that are not easy to infer from a quick read. 
+
+A reader should be able to complete the task using the docs without guessing missing commands, hidden assumptions, unstated prerequisites, or external project knowledge.
 
 Good explanatory writing should make clear:
 - what problem is being solved
