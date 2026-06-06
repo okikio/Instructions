@@ -1,5 +1,5 @@
 ---
-description: Cross-project Markdown and long-form documentation style
+description: "Cross-project Markdown and long-form documentation style"
 applyTo: "**/*.md"
 ---
 
@@ -15,7 +15,7 @@ When introducing a concept, prefer this narrative order:
 4. how it works at a high level
 5. examples, assumptions, edge cases, limitations, and deeper detail
 
-Use this as a default shape, not a rigid template.
+^ Use this as a default shape, not a rigid template.
 
 Before writing, choose the documents job:
 
@@ -37,7 +37,9 @@ A document should do one primary job. If it needs to teach, specify, and trouble
 - Define technical terms the first time they matter.
 - Ground abstract ideas in something concrete before or while naming them.
 - Tie explanations to a real behavior, cost, failure mode, example, or downstream benefit.
-- Keep a steady narrative flow.
+- Keep a smooth narrative flow.
+- Ensure each paragraph leads into the next with a sentence that either previews the next idea or closes the current one. 
+- Avoid switching abruptly between procedural steps and conceptual explanation within the same paragraph.
 - Prefer transition sentences over unnecessary headers.
 - Use active voice.
 - Use present tense where practical.
@@ -69,7 +71,8 @@ A useful header must mark a real subject shift, be specific about what follows, 
 
 ## Examples and visual aids
 
-Use examples when they materially improve understanding.
+Add an example when the concept involves non-obvious behavior, a parameter with surprising defaults, or a failure mode a reader is likely to encounter. Skip examples for straightforward operations that follow predictable common conventions.
+For code blocks, place a prose sentence immediately before the block stating what the code demonstrates and what the reader should notice. Do not use the code block itself or its comments as the primary explanation.
 Use ASCII diagrams when they clarify structure, flow, hierarchy, state transitions, or algorithm steps.
 Always explain what the reader is looking at and why it matters.
 Do not add diagrams just to decorate the prose.
@@ -96,5 +99,4 @@ Keep decisions concrete. Make tradeoffs explicit. State assumptions plainly.
 - Do not create many tiny headers that simply label the next paragraph.
 - Do not replace one abstract phrase with another abstract phrase and call it clarity.
 - Do not use diagrams or examples that overstate certainty beyond what the implementation actually guarantees.
-- Do not use summary transitions that recap the previous paragraph without adding direction
-- Do not use generic setup lines that could fit any page
+- Do not use generic setup lines that could fit any page.

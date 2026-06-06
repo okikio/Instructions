@@ -6,6 +6,8 @@ Prefer JavaScript-native constructs and runtime shapes whenever JavaScript alrea
 
 Let the role of the code decide its shape. Do not blindly force one naming rule onto every construct.
 
+If a type must simultaneously satisfy an external contract and an internal domain interface, always define two separate types: one mirroring the external shape and one using internal naming. Map between them explicitly at the boundary. Never reuse a boundary type as a domain type, even when their shapes are identical at a point in time.
+
 Make data look like data, and make behavior look like behavior.
 
 Use `snake_case` for fields in plain records, normalized payloads, persistence-oriented fields, schema-like data, and other shapes that are primarily stable data.
@@ -26,7 +28,9 @@ Prefer JavaScript-native representations over TypeScript-only constructs when bo
 
 Prefer plain, cheap, inspectable runtime structures. For membership checks, default to object-based lookup tables when simple key existence is all that is needed. Use `Object.create(null)` for dictionary-style lookup tables when prototypes are unnecessary. Freeze static lookup tables when immutability helps communicate intent and prevent accidental drift. For simple dense numeric or byte-range checks, prefer `Uint8Array`. Still choose the structure that best matches the real problem when semantics matter more than micro-optimization.
 
-Optimize for clarity first, but allow deliberate complexity when it earns its keep. When code becomes less straightforward because of performance, memory, allocation, caching, batching, scheduling, I/O, concurrency, or other systems concerns, treat that as a design decision that must be explained. Do not introduce cleverness silently.
+Allow deliberate complexity only when you can state (a) the specific runtime cost it reduces, (b) the measured or well-understood magnitude of that cost in the target workload, and (c) why the readability or maintenance tradeoff is acceptable. If you cannot state all three, prefer the simpler form. 
+
+When code becomes less straightforward because of performance, memory, allocation, caching, batching, scheduling, I/O, concurrency, or other systems concerns, treat that as a design decision that must be explained. Do not introduce cleverness silently.
 
 Write documentation, comments, and TSDoc to explain intent, constraints, assumptions, tradeoffs, and behavior that are not easy to infer from a quick read. 
 
@@ -64,4 +68,6 @@ Use familiar language by default. When a technical term is worth keeping, explai
 
 Prefer code and prose that teach as they go. A careful reader should be able to understand not only what the code does, but why it takes this shape and what future work it is preparing for.
 
-Default to explicitness, high signal, correctness, maintainability, standards alignment, and least privilege. Do not invent files, APIs, config, behavior, or guarantees that are not visible in the code or task. If something is unclear, state the assumption and give a concrete verification step.
+Default to explicitness, high signal, correctness, maintainability, standards alignment, and least privilege. Do not invent files, APIs, config, behavior, or guarantees that are not visible in the code or task. If something is unclear, state the assumption and give a concrete verification step. 
+
+When modifying existing code that contains a stated assumption that no longer holds, let the developer know so their mental model reflects the current reality before completing the task. Do not leave a documented assumption that contradicts the updated code.
