@@ -23,6 +23,8 @@ import * as fc from 'npm:fast-check';
 If a local project already uses a Jest-style `expect` surface through another compatible test runner such as Vitest, keep the same assertion style rather than fighting the local tool.
 Prefer consistency of test ergonomics when the underlying assertion model is effectively the same.
 
+But the rules around test quality and structure still apply regardless of the test runner or assertion library. There are also integrations for `fast-check` with test runners, e.g. `@fast-check/vitest` try taking advantage of those when using `fast-check` with a compatible test runner.
+
 ## Core principle
 
 Test behavior, not implementation.
@@ -56,6 +58,9 @@ Use `fast-check` for invariants.
 High-value properties often include:
 - never-throw behavior where relevant
 - round-trip stability
+- schema validation and parsing stability
+- schema edge cases such as empty input, missing fields, extra fields, and malformed input
+- input poisoning and fuzzing patterns relevant to the domain
 - content preservation where applicable
 - idempotence where applicable
 - structural well-formedness

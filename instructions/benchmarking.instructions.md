@@ -5,11 +5,11 @@ applyTo: "**/*_bench.ts,**/*bench*.ts"
 
 # Benchmarking Rules
 
-This project family uses `mitata` by default.
+This project family uses `mitata` by default. With the option for `vitest` benchmarks when that better suits the scenario. The rules below apply to all benchmarks regardless of framework.
 
 ## Non-negotiable
 
-Always wrap benchmark results with `do_not_optimize()`.
+Always wrap benchmark results with `do_not_optimize()`. Or an alternative that achieves the same goal.
 A benchmark that does not consume its result is not trustworthy.
 
 ## Prevent constant folding and loop hoisting
