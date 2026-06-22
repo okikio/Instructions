@@ -52,6 +52,27 @@ A document should do one primary job. If it needs to teach, specify, and trouble
 The goal is not just to swap jargon for simpler jargon.
 The goal is to help the reader build a working mental model.
 
+## Diagram depth and lifecycle walkthroughs
+
+Use diagrams as structured walkthroughs when a system is easier to understand by
+following time, ownership, state, and handoffs. Do not overcompress a complex
+workflow into a tiny pipeline if the omitted detail is what makes the system hard
+to reason about.
+
+For architecture-heavy docs, use this sequence when it helps the reader:
+
+1. State the goal or contract of the flow.
+2. Survey the major moving parts.
+3. Draw the lifecycle in named chapters.
+4. Define the terms introduced by the diagram.
+5. Use the diagram to identify risks, tradeoffs, and implementation steps.
+
+A long diagram is acceptable when it is easier to follow because it is chaptered.
+Prefer one detailed walkthrough over several tiny diagrams when splitting would
+hide ordering, ownership, retries, storage, or cleanup. Prefer separate diagrams
+when each one has a distinct job, such as component ownership, data flow, or
+failure recovery.
+
 ## Grounding abstract concepts
 
 Before using a specialized term, or immediately after introducing it, connect it to at least one of these:
@@ -73,7 +94,9 @@ A useful header must mark a real subject shift, be specific about what follows, 
 
 Add an example when the concept involves non-obvious behavior, a parameter with surprising defaults, or a failure mode a reader is likely to encounter. Skip examples for straightforward operations that follow predictable common conventions.
 For code blocks, place a prose sentence immediately before the block stating what the code demonstrates and what the reader should notice. Do not use the code block itself or its comments as the primary explanation.
-Use ASCII diagrams when they clarify structure, flow, hierarchy, state transitions, or algorithm steps.
+Use ASCII diagrams when they clarify structure, flow, hierarchy, state transitions, ownership, or algorithm steps.
+For long lifecycle diagrams, prefer top-to-bottom time flow, named chapters, ownership labels at handoff points, compact data shapes where contracts matter, visible branches or fallback paths, and a short glossary when project vocabulary is introduced.
+Do not flatten away the very details the reader needs. A longer diagram is better than a tidy one-line diagram when the larger shape explains ordering, stored state, retries, concurrency, or cleanup.
 Always explain what the reader is looking at and why it matters.
 Do not add diagrams just to decorate the prose.
 

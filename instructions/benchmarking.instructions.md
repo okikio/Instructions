@@ -1,6 +1,6 @@
 ---
 description: Cross-project benchmarking standards
-applyTo: "**/*_bench.ts,**/*bench*.ts"
+applyTo: "**/*_bench.{js,ts,jsx,tsx},**/*bench*.{js,ts,jsx,tsx}"
 ---
 
 # Benchmarking Rules
@@ -51,6 +51,16 @@ Either convert the scenario into a proper benchmark with controlled GC or move m
 
 When benchmark-driven optimization leads to less obvious code, explain the tradeoff.
 State what work is being reduced, why that matters for the measured path, and why the code shape is still worth keeping.
+
+Each benchmark should tell a small performance story: what changed, what baseline
+it is compared against, what real workload it approximates, and what regression
+would matter.
+
+For lifecycle-heavy or pipeline-heavy performance work, do not overcompress the
+scenario into a tiny hot-loop benchmark if the real cost comes from batching,
+parsing, indexing, persistence, allocation pressure, cache behavior, or
+cross-stage handoffs. Keep the benchmark focused, but make the scenario
+representative enough to explain the measured path.
 
 ## Anti-patterns
 

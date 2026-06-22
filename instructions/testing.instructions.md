@@ -1,6 +1,6 @@
 ---
 description: Cross-project test quality standards
-applyTo: "**/*_test.ts,**/*.test.ts"
+applyTo: "**/*_test.{js,ts,jsx,tsx},**/*.test.{js,ts,jsx,tsx}"
 ---
 
 # Testing Rules
@@ -23,7 +23,7 @@ import * as fc from 'npm:fast-check';
 If a local project already uses a Jest-style `expect` surface through another compatible test runner such as Vitest, keep the same assertion style rather than fighting the local tool.
 Prefer consistency of test ergonomics when the underlying assertion model is effectively the same.
 
-But the rules around test quality and structure still apply regardless of the test runner or assertion library. There are also integrations for `fast-check` with test runners, e.g. `@fast-check/vitest` try taking advantage of those when using `fast-check` with a compatible test runner.
+The rules around test quality and structure still apply regardless of the test runner or assertion library. There are also integrations for `fast-check` with test runners, e.g. `@fast-check/vitest` try taking advantage of those when using `fast-check` with a compatible test runner.
 
 ## Core principle
 
@@ -51,6 +51,17 @@ Use the AAA pattern:
 - Assert
 
 Human-written expected values are better than generated expected values that repeat the implementation logic.
+
+Tests for lifecycle-heavy behavior should tell the same story a maintainer needs
+to debug the feature. Keep setup visible when it explains the behavior. Extract a
+helper only when it names a real fixture concept, repeated scenario, policy,
+lifecycle operation, or independently reusable assertion.
+
+For non-trivial setup, add a short comment that explains:
+- what behavior is protected
+- why the setup has this shape
+- what regression the test would catch
+- how the behavior connects to the larger lifecycle or algorithm
 
 ## Property-based tests
 

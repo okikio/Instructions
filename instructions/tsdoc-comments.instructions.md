@@ -66,6 +66,24 @@ A good explanation answers both of these:
 - `What does this term mean?`
 - `What does it mean here, in this code?`
 
+## Diagram depth in comments and TSDoc
+
+Use diagrams in comments when the local code is hard to understand because order,
+ownership, state transitions, or data-shape changes matter. Do not overcompress a
+multi-step lifecycle into a one-line pipeline when the omitted branch, fallback,
+or cleanup path is the point of the comment.
+
+For TSDoc, keep diagrams smaller than long-form documentation, but still large
+enough to preserve the behavior that matters. When the full lifecycle would make
+a doc block hard to scan, move the detailed diagram to Markdown docs and keep a
+short local diagram or link-style reference in the TSDoc.
+
+A useful comment diagram can show:
+- the trigger for the local lifecycle
+- the owner of each step
+- the shape that enters and leaves the function
+- the branch, retry, cleanup, or invalidation rule that protects correctness
+
 ## Performance-related explanation
 
 When a performance optimization makes the code less obvious, explain it clearly.
@@ -88,6 +106,7 @@ Use examples for:
 
 Prefer examples that show a real caller scenario, not a toy snippet with no context.
 Use diagrams only when they make the code easier to understand.
+For lifecycle-heavy code, prefer enough detail to show order, ownership, handoff shapes, retries, cleanup, and invalidation. Do not reduce a complex flow to a tiny abstract pipeline when the missing detail is what explains the behavior.
 Every diagram and example must match the real behavior of the implementation.
 
 ## Anti-patterns

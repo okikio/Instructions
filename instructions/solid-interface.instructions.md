@@ -38,9 +38,21 @@ When writing or reviewing Solid, reason in this order:
 8. Keep hydration, SSR, and client boundaries stable.
 9. Clean up listeners, observers, timers, animation loops, and imperative integrations.
 
+
+For complex Solid interfaces, keep the reactive lifecycle visible. A diagram or
+component example should show owner lifetime, data loading, stale state, retry,
+cleanup, and descendant consumption when those details affect correctness. Do not
+compress the workflow into a tiny component tree if the missing owner or cleanup
+path is the actual source of bugs.
+
 ## Design Solid APIs around composition and reactive boundaries
 
 Use composition over configuration.
+
+For complex UI flows, composition examples should preserve the real structure.
+Show named regions, state owner, async status, error recovery, and cleanup paths
+when those are part of the component contract. A longer example is preferable to
+a tiny example that hides where state lives or how descendants receive updates.
 
 Prefer:
 

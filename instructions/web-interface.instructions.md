@@ -28,6 +28,11 @@ Prefer:
 
 Avoid abstractions that hide structure, state ownership, accessibility semantics, or framework boundaries.
 
+For complex interface workflows, document or model the full user-visible
+lifecycle instead of reducing it to a happy-path component tree. Good UI
+architecture shows who owns state, which region can be loading or stale, how
+errors recover, where focus moves, and what happens during cleanup or navigation.
+
 ## Work in priority order
 
 When writing or reviewing an interface, reason in this order:
@@ -100,6 +105,11 @@ The exact syntax should be native to the framework:
 ## Use examples to prove the API
 
 Every reusable interface pattern should include at least one usage example that proves the API works in context.
+
+For stateful or async interface patterns, prefer examples that show the lifecycle
+through named regions rather than a compressed one-line composition. Include
+loading, stale, empty, error, retry, success, and cleanup paths when those states
+are part of the contract.
 
 The example should show:
 

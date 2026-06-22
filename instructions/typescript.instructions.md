@@ -11,6 +11,33 @@ Assume Deno v2, strict TypeScript, and ESM unless the local project clearly says
 Keep modules tree-shakeable. Avoid top-level side effects unless they are clearly required. 
 Avoid hidden global state. Avoid surprising initialization during import.
 
+## Readable flow before abstraction
+
+Code should tell one understandable story from top to bottom.
+
+Prefer cohesive flows where the reader can follow the lifecycle without jumping
+across many tiny helpers. Extract a helper when it represents a real concept,
+policy, repeated operation, lifecycle step, reusable validation rule,
+deterministic algorithm, or logic that is easier to test in isolation.
+
+Good reasons to extract a helper include:
+- repeated result shapes, such as `ok(...)`, `err(...)`, or `rejected(...)`
+- conflict policy
+- deterministic sort or merge behavior
+- reusable validation rules
+- named lifecycle operations
+- independently testable transformations
+
+Weak reasons to extract a helper include:
+- hiding one or two obvious lines
+- naming code that is already clearer inline
+- splitting one readable flow into scattered fragments
+- creating extra jumps while reading
+- making the architecture sound more complex than it is
+
+Prefer early returns when each branch can complete the work directly. Avoid
+storing branch results in a mutable variable just to return later.
+
 ## Formatting and imports
 
 Use tabs with a 2-space feel.
@@ -29,6 +56,20 @@ Avoid `any`. Prefer explicit, narrow return types at module boundaries.
 Prefer unions, generics, discriminated unions, and narrowing.
 Keep public keys stable unless an explicit migration is intended.
 Any type referenced in a public signature must itself be exported.
+
+Types should make the system flow easier to read.
+
+Prefer discriminated unions when values move through distinct states, such as
+request acceptance, resource loading, audit availability, lifecycle status, job
+progress, or cache freshness.
+
+Prefer named types when the name captures a real domain concept, such as
+`LookupIndex`, `AuditTrace`, `WorkflowSession`, `JobRequest`, `WorkerResult`, or
+`PipelineEvent`.
+
+Avoid generic names that hide domain meaning, such as `Data`, `Entry`,
+`Payload`, `Manager`, or `Handler`, unless the surrounding module gives them
+precise meaning.
 
 Prefer JavaScript-native TypeScript. Avoid TS-only ceremony when JavaScript can already express the idea clearly.
 Avoid `public` by default in classes. Prefer `#private` when appropriate.
@@ -85,6 +126,10 @@ When useful, include:
 - a step-by-step walkthrough
 - clarification of abstract markers or codes
 - an ASCII diagram when it materially improves understanding
+
+For lifecycle-heavy TypeScript, diagrams should preserve the important sequence,
+ownership, state transitions, and failure paths. Do not overcompress the diagram
+if the missing detail explains why the types, states, or branches exist.
 
 For non-obvious performance optimizations, explain what changed, how it works, what cost it reduces, why that matters for this workload, and why the gain is worth the readability cost.
 

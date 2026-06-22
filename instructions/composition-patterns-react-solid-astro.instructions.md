@@ -1,8 +1,9 @@
 ---
 title: Compose Framework Primitives, Not Renderer-shaped APIs
 impact: HIGH
-impactDescription: preserves composition-first component APIs across React, Solid, and Astro without flattening their different runtime models
+description: preserves composition-first component APIs across React, Solid, and Astro without flattening their different runtime models
 tags: composition, jsx, react, solid, astro, slots, children, signals, context, control-flow, design-systems
+applyTo: "**/*.md,**/*.{js,ts},**/*.{jsx,tsx},**/*.astro"
 ---
 
 ## Compose Framework Primitives, Not Renderer-shaped APIs
@@ -30,6 +31,12 @@ not the same:
 
 The shared rule is **composition over configuration**. The implementation must
 stay native to the renderer.
+
+Composition examples should be detailed enough to reveal ownership and lifecycle.
+Do not compress a complex pattern into a tiny component tree when the important
+part is where state lives, how descendants consume it, how async states recover,
+or how cleanup happens. Prefer chaptered examples or staged diagrams when the
+pattern crosses framework, server/client, or owner boundaries.
 
 ## Incorrect: renderer-shaped configuration API
 

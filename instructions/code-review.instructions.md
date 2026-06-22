@@ -18,6 +18,11 @@ unless the task is explicitly a review.
 
 Prioritize correctness, clarity, maintainability, and standards alignment.
 
+Review for whether the code tells one understandable story from top to bottom.
+Smaller functions are not automatically clearer; extraction is useful when a
+helper names a real concept, policy, lifecycle operation, reusable validation
+rule, deterministic algorithm, or independently testable transformation.
+
 Prefer fewer, higher-signal comments over noisy review spam.
 
 ## Review order
@@ -28,6 +33,8 @@ Check:
 - does the code do what it claims
 - are edge cases handled
 - are public contracts consistent across implementation and usage
+- does important operation order remain explicit and correct
+- do batching, retry, persistence, cache, audit, or lifecycle changes preserve their invariants
 
 ### 2. Failure modes and safety
 
@@ -53,6 +60,11 @@ Check:
 - names reveal intent
 - non-obvious or complex logic is explained
 - comments explain why, and when needed what or how
+- comments connect local logic to the larger behavior instead of labeling vague boundaries
+- cohesive logic is kept together unless extraction improves naming, reuse, policy isolation, or testability
+- early returns are preferred when they let each branch show validation, work, and result together
+- diagrams preserve enough detail to explain lifecycle, ownership, state, and failure-sensitive order
+- diagrams are not overcompressed into tidy pipelines that hide the behavior being reviewed
 - the diff is understandable without guessing the motivation
 
 If the code is correct but its purpose is hard to infer, suggest improving:
@@ -61,6 +73,11 @@ If the code is correct but its purpose is hard to infer, suggest improving:
 - PR description
 - examples
 - diagrams
+
+When suggesting diagrams, prefer chaptered walkthroughs for lifecycle-heavy
+changes. Ask for a smaller diagram only when the current one repeats information
+or obscures the main path; do not ask to simplify away branches, handoffs,
+stored state, or cleanup that are needed to reason about correctness.
 
 ### 5. Consistency and style
 
