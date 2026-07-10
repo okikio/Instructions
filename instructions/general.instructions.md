@@ -4,7 +4,7 @@ Use a principles-first style. The goal is not just to make the code work, but to
 
 Prefer JavaScript-native constructs and runtime shapes whenever JavaScript already expresses the idea clearly. Use TypeScript to describe and sharpen JavaScript, not to replace it with extra ceremony. Avoid TypeScript-only syntax when JavaScript already carries the intent well. For example, do not add `public` by default, prefer `#private` when real private state is needed and supported, and use `protected` only when inheritance genuinely requires it.
 
-Let the role of the code decide its shape. Do not blindly force one naming rule onto every construct.
+Let the role of the code decide its shape. Do not blindly force one naming rule onto every construct. When naming rules conflict, apply them in this order: (1) mirror the boundary you are modeling, (2) preserve the data-versus-behavior distinction, (3) fall back to the construct kind.
 
 If a type must simultaneously satisfy an external contract and an internal domain interface, always define two separate types: one mirroring the external shape and one using internal naming. Map between them explicitly at the boundary. Never reuse a boundary type as a domain type, even when their shapes are identical at a point in time.
 
@@ -12,21 +12,21 @@ Make data look like data, and make behavior look like behavior.
 
 Use `snake_case` for fields in plain records, normalized payloads, persistence-oriented fields, schema-like data, and other shapes that are primarily stable data.
 
-Use `camelCase` for functions, methods, variables, parameters, getters, setters, class properties, and other runtime behavior. Classes are runtime objects, not plain records, so their properties and methods should read like normal JavaScript.
+Use `camelCase` for functions, methods, variables, parameters, getters, setters, class properties, and other runtime behavior. If a class property intentionally stores stable record data, let the data rule win for that property; for example, `class UserRow { user_id: string; refreshToken(): void }` keeps `user_id` as data and `refreshToken` as behavior.
 
 Use `PascalCase` for classes, interfaces, types, and other major abstractions. If an interface or type models a plain record, its fields should follow the plain-record style. If it models a behavioral or class-like API, its members should follow that API style.
 
 Use `UPPER_SNAKE_CASE` for true constants and environment variables.
 
-At boundaries, keep naming honest. Mirror the naming used by external APIs, libraries, file formats, protocols, or other systems while you are still at the boundary. Normalize into the project’s internal naming style only once data crosses into the project’s own domain model. Do not blur boundary types and internal types together.
+At boundaries, keep naming honest. Mirror the naming used by external APIs, libraries, file formats, protocols, or other systems while you are still at the boundary. When an external API uses `camelCase` for its payload fields, keep `camelCase` in the boundary type that mirrors that API. Apply `snake_case` only when normalizing those fields into the internal domain model. Normalize into the project’s internal naming style only once data crosses into the project’s own domain model. Do not blur boundary types and internal types together.
 
 Prefer the shortest name that still communicates the real intent. Do not make names longer just to sound explicit. Add more words only when they remove real ambiguity. Favor names that stay visually light and easy to scan.
 
-Treat files as part of the design. Use a leading underscore, such as `_utils.ts`, for support modules, helper modules, or secondary driver files that are not the main entry point for understanding a feature. The underscore marks the file as secondary, not forbidden.
+Treat files as part of the design. Use a leading underscore, such as `_utils.ts` or `_helpers.ts`, for support modules and helper modules that are not the primary entry point for understanding a feature. Do not use this convention for entry points, adapters, or infrastructure files that are primary to their own concern. The underscore marks the file as secondary, not forbidden.
 
 Prefer JavaScript-native representations over TypeScript-only constructs when both can express the same idea clearly. For named finite value sets, prefer constant objects plus derived types over TypeScript `enum`. Keep the runtime shape plain and make the type derive from the runtime source of truth.
 
-Prefer plain, cheap, inspectable runtime structures. For membership checks, default to object-based lookup tables when simple key existence is all that is needed. Use `Object.create(null)` for dictionary-style lookup tables when prototypes are unnecessary. Freeze static lookup tables when immutability helps communicate intent and prevent accidental drift. For simple dense numeric or byte-range checks, prefer `Uint8Array`. Still choose the structure that best matches the real problem when semantics matter more than micro-optimization.
+Prefer plain, cheap, inspectable runtime structures. For membership checks, default to plain object literals when simple key existence is all that is needed and prototype keys are not a concern. Use `Object.create(null)` for dictionary-style lookup tables when you need prototype-free semantics or want to avoid collisions with inherited keys. Freeze static lookup tables when immutability helps communicate intent and prevent accidental drift. For simple dense numeric or byte-range checks, prefer `Uint8Array`. Still choose the structure that best matches the real problem when semantics matter more than micro-optimization.
 
 Allow deliberate complexity only when you can state (a) the specific runtime cost it reduces, (b) the measured or well-understood magnitude of that cost in the target workload, and (c) why the readability or maintenance tradeoff is acceptable. If you cannot state all three, prefer the simpler form. 
 

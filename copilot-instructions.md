@@ -41,12 +41,19 @@ The typescript instructions file has more specific naming conventions for differ
 
 The python instructions file has more specific naming conventions for different shapes of code. Follow those when working in Python.
 
+For languages other than JavaScript, TypeScript, and Python, apply the general naming and engineering principles in this file directly. Use the conventions idiomatic to that language where this file is silent.
+
+Names should be short, clear, and unambiguous. Names should also take into account the context of the file, folder, code and the domain of the problem being solved. e.g. instead of `technologies/technologies-categories.ts`, you can say `technology/categories.ts`, or instead of `technologies/technologies.ts`, you can say `technologies/index.ts`.
+
+Avoid abreviating names unless the abbreviation is widely known and unambiguous in the context of the code.
+
 ## Boundary honesty
 
 At boundaries, keep naming and contracts honest.
 Mirror the naming used by external APIs, libraries, file formats, protocols, or other systems while you are still at the boundary.
 Normalize into the project’s internal naming style only once the data crosses into the project’s own domain model.
 Do not blur boundary types and internal types together.
+If a type is used in shared utility code that sits between the boundary and the domain model, treat it as a boundary type and keep external naming until it is explicitly mapped into a domain type.
 
 Validate inputs explicitly at system boundaries.
 Call out trust boundaries around untrusted input, auth, permissions, parsing, network access, filesystem access, and persistence.
