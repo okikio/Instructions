@@ -8,6 +8,7 @@ applyTo: "**/*.ts,**/*.tsx"
 ## Runtime and module model
 
 Assume Deno v2, strict TypeScript, and ESM unless the local project clearly says otherwise.
+When using npm packages via `npm:` specifiers, prefer explicit type imports and document any known type gaps. Avoid mixing `npm:` and `jsr:` specifiers for the same logical dependency.
 Keep modules tree-shakeable. Avoid top-level side effects unless they are clearly required. 
 Avoid hidden global state. Avoid surprising initialization during import.
 
@@ -16,31 +17,16 @@ Avoid hidden global state. Avoid surprising initialization during import.
 Code should tell one understandable story from top to bottom.
 
 Prefer cohesive flows where the reader can follow the lifecycle without jumping
-across many tiny helpers. Extract a helper when it represents a real concept,
-policy, repeated operation, lifecycle step, reusable validation rule,
-deterministic algorithm, or logic that is easier to test in isolation.
-
-Good reasons to extract a helper include:
-- repeated result shapes, such as `ok(...)`, `err(...)`, or `rejected(...)`
-- conflict policy
-- deterministic sort or merge behavior
-- reusable validation rules
-- named lifecycle operations
-- independently testable transformations
-
-Weak reasons to extract a helper include:
-- hiding one or two obvious lines
-- naming code that is already clearer inline
-- splitting one readable flow into scattered fragments
-- creating extra jumps while reading
-- making the architecture sound more complex than it is
+across many tiny helpers. Extract a helper only when it represents a named
+concept, is reused, or is significantly easier to test in isolation. Do not
+extract helpers merely to shorten inline code or add architectural layers.
 
 Prefer early returns when each branch can complete the work directly. Avoid
 storing branch results in a mutable variable just to return later.
 
 ## Formatting and imports
 
-Use tabs with a 2-space feel.
+Use tab characters for indentation. Configure tab width as 2 in `deno.json` or `.editorconfig` (`"indentWidth": 2`).
 Keep opening braces on the same line as declarations.
 Use explicit file extensions.
 Separate type imports from value imports with `import type`.
@@ -87,7 +73,7 @@ Mirror external naming at the boundary, then normalize internally once the data 
 
 ## Object and lookup patterns
 
-Prefer `Object.assign(...)` over object spread when practical. Use spread only when it materially improves readability.
+Prefer object spread for simple clone or merge operations. Use `Object.assign(...)` when mutating an existing target or when that shape is clearer.
 For simple membership checks, prefer object lookup tables over `Set` when key existence is all that is needed.
 Use `Object.create(null)` when a prototype is unnecessary. Freeze static lookup tables when immutability helps communicate intent.
 For simple dense numeric or byte-range checks, prefer `Uint8Array`.
@@ -140,5 +126,5 @@ Prefer typed errors or discriminated union results where appropriate.
 At system boundaries, validate inputs explicitly.
 Preserve recovery behavior where that is part of the contract.
 
-Run project-appropriate checks after public API or documentation changes.
-If the project exposes `deno doc --lint`, run it and fix the reported issues.
+After public API or documentation changes, run `deno check`, `deno lint`, and
+`deno doc --lint` if the project exposes them, and fix any reported issues.

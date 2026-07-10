@@ -24,6 +24,35 @@ Write Solid so that:
 - Control-flow components preserve identity and cleanup.
 - Async state, Suspense, transitions, and ErrorBoundaries are recoverable.
 
+Before hand-rolling browser wiring, root-sharing helpers, resize tracking, media
+query state, keyboard shortcuts, pointer tracking, or persistence glue, check
+whether a `@solid-primitives/...` package already solves the problem in a
+Solid-native way.
+
+Use this table as a starting reference when tackling Solid-specific tasks:
+
+| Package | Exported methods or components | Capabilities |
+| --- | --- | --- |
+| `@solid-primitives/event-listener` | `makeEventListener`, `makeEventListenerStack`, `createEventListener`, `createEventSignal`, `createEventListenerMap`, `WindowEventListener`, `DocumentEventListener`, `eventListener`, `preventDefault`, `stopPropagation`, `stopImmediatePropagation` | DOM and custom event wiring with Solid cleanup semantics, reactive listener targets and event types, listener maps, last-event signals, window or document listener components, directive-based listener attachment, and event-handler wrappers. |
+| `@solid-primitives/refs` | `mergeRefs`, `resolveElements`, `resolveFirst`, `Refs`, `Ref`, `defaultElementPredicate` | Ref forwarding, keeping multiple child refs current, resolving nested JSX children into elements, and finding the first matching element in composed children. |
+| `@solid-primitives/resize-observer` | `makeResizeObserver`, `createResizeObserver`, `createWindowSize`, `useWindowSize`, `createElementSize` | Resize observation with automatic disposal, reactive element-size tracking, shared window-size state, and layout-aware components without manual observer bookkeeping. |
+| `@solid-primitives/media` | `makeMediaQueryListener`, `createMediaQuery`, `createBreakpoints`, `sortBreakpoints`, `createPrefersDark`, `usePrefersDark` | Media-query listeners, responsive breakpoint state, breakpoint ordering helpers, and shared dark-mode preference tracking with server fallback support. |
+| `@solid-primitives/storage` | `makePersisted`, `cookieStorage`, `makeObjectStorage`, `multiplexStorage`, `storageSync`, `messageSync`, `wsSync`, `multiplexSync`, `addClearMethod`, `addWithOptionsMethod` | Persisting signals or stores to sync or async storage, cookie-backed or object-backed storage, fallback storage chains, multi-tab or websocket synchronization, and adapting custom storage APIs. |
+| `@solid-primitives/scheduled` | `debounce`, `throttle`, `scheduleIdle`, `leading`, `leadingAndTrailing`, `createScheduled` | Debounced, throttled, idle-time, leading-edge, and leading-plus-trailing callbacks, plus tracked scheduling for Solid computations. |
+| `@solid-primitives/keyboard` | `useKeyDownEvent`, `useKeyDownList`, `useCurrentlyHeldKey`, `useKeyDownSequence`, `createKeyHold`, `createShortcut` | Shared keyboard-state signals, held-key tracking, key-sequence tracking, single-key hold checks, and shortcut observers with optional default-prevention and reset behavior. |
+| `@solid-primitives/mouse` | `createMousePosition`, `useMousePosition`, `createPositionToElement`, `makeMousePositionListener`, `makeMouseInsideListener`, `getPositionToElement`, `getPositionInElement`, `getPositionToScreen` | Reactive pointer position, shared window pointer tracking, element-relative cursor math, enter or leave detection, and page-to-element or page-to-screen coordinate conversion. |
+| `@solid-primitives/rootless` | `createSubRoot`, `createCallback`, `createDisposable`, `createSingletonRoot`, `createHydratableSingletonRoot`, `createRootPool` | Owner-aware callbacks, disposable sub-roots, shared singleton roots, hydration-safe singleton variants, and pooled roots for frequently mounted or unmounted reactive work. |
+| `@solid-primitives/list` | `List`, `listArray` | Alternative list control flow with reactive item values and reactive indices, useful when you need finer-grained array updates than a plain `.map()` or a default `<For>` pattern. |
+| `@solid-primitives/platform` | boolean exports such as `isAndroid`, `isWindows`, `isMac`, `isIPhone`, `isIPad`, `isIPod`, `isIOS`, `isAppleDevice`, `isMobile`, `isFirefox`, `isOpera`, `isSafari`, `isIE`, `isChromium`, `isEdge`, `isChrome`, `isBrave`, `isGecko`, `isBlink`, `isWebKit`, `isPresto`, `isTrident`, `isEdgeHTML` | Tree-shakeable browser, device, and rendering-engine detection flags for platform-specific fallbacks or bug workarounds. |
+
+Prefer these primitives over ad hoc wrappers when they already match the job.
+If a package name or export looks close but not exact, verify the current API
+before using it.
+If no `@solid-primitives` package matches after verification, implement the
+narrowest hand-rolled wrapper that respects Solid state & cleanup semantics such as
+`onCleanup` or `createRoot` disposal, and leave a comment explaining why the
+primitive was not used.
+
 ## Work in priority order
 
 When writing or reviewing Solid, reason in this order:
@@ -38,6 +67,7 @@ When writing or reviewing Solid, reason in this order:
 8. Keep hydration, SSR, and client boundaries stable.
 9. Clean up listeners, observers, timers, animation loops, and imperative integrations.
 
+The priority order governs trade-offs between sections. When a specific section rule conflicts with a higher-priority item, the priority order wins.
 
 For complex Solid interfaces, keep the reactive lifecycle visible. A diagram or
 component example should show owner lifetime, data loading, stale state, retry,
@@ -64,6 +94,8 @@ Prefer:
 - Stores for nested structured state.
 - Explicit variants for different workflows.
 - `<Dynamic />` for runtime-selected components or root elements.
+
+Use `createStore` when state is nested or partially updated, such as changing one field without replacing the whole object. Use `createSignal` for flat, scalar, or fully replaced values. Avoid stores for primitives that are always replaced atomically.
 
 Avoid:
 
@@ -229,15 +261,17 @@ Use `props.children` when simply rendering children once.
 Use `children()` when children are accessed multiple times, transformed, filtered, measured, memoized, or passed into reactive logic.
 
 ```tsx
-import { children, type JSX } from "solid-js"
+import { Show, children, type JSX } from "solid-js"
 
 function Panel(props: { children: JSX.Element }) {
   const resolved = children(() => props.children)
+  const hasContent = () => resolved.toArray().length > 0
 
   return (
-    <section>
-      <header>{resolved()}</header>
-      <div>{resolved()}</div>
+    <section classList={{ "panel-empty": !hasContent() }}>
+      <Show when={hasContent()} fallback={<p>No content</p>}>
+        <div>{resolved()}</div>
+      </Show>
     </section>
   )
 }
@@ -401,7 +435,7 @@ Use Solid's control-flow components for reactive branching and list identity.
 - Use `<Show keyed>` when the child block should recreate when the value changes, not only when truthiness changes.
 - Use `<Switch>` and `<Match>` for mutually exclusive branches.
 - Use `<For>` for dynamic keyed collections where item identity matters.
-- Use `<Index>` only when order and length are stable but item values change frequently.
+- Use `<Index>` only when item order and count are fixed and items carry no component-local state. Do not use `<Index>` for lists that can be reordered or where each item owns reactive state that must survive position changes.
 
 ```tsx
 <Show when={user()} fallback={<SignInPrompt />}>
